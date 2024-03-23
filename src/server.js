@@ -13,7 +13,7 @@ const app = express()
 
 app.use(
     cors({
-        origin: '*', // Replace with the origin of your client
+        origin: 'http://localhost:3000', // Replace with the origin of your client
         credentials: true, // Enable credentials (cookies, Authorization headers, etc.)
     })
 )
