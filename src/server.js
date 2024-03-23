@@ -19,9 +19,9 @@ app.use(
 )
 app.use(express.json())
 
-// app.get("/", (req, res) => {
-//   res.send("API Running!");
-// });
+app.get("/", (req, res) => {
+  res.send("API Running!");
+});
 app.use('/api/user', userRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/message', messageRoutes)
