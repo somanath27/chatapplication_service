@@ -1,6 +1,6 @@
 const User = require('../models/userModel')
 const asyncHandler = require('express-async-handler')
-const generateToken = require('../configs/generateToken')
+const generateToken = require('../database/generateToken')
 const bcryptjs = require('bcryptjs')
 const { validationResult } = require('express-validator')
 
