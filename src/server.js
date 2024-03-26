@@ -1,7 +1,8 @@
 const express = require('express')
+const compression = require("compression");
+const helmet = require("helmet");
 const dotenv = require('dotenv')
 const cors = require('cors')
-// const color= require('color')
 const connectDB = require('./configs/db')
 const userRoutes = require('./routes/userRoutes')
 const chatRoutes = require('./routes/chatRoutes')
@@ -10,6 +11,26 @@ const { errorHandler, notFound } = require('./middleware/errorMiddleware')
 dotenv.config()
 connectDB()
 const app = express()
+app.use(compression()); // Compress all routes
+
+// Add helmet to the middleware chain.
+// Set CSP headers to allow our Bootstrap and Jquery to be served
+app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+      },
+    }),
+  );
+
+// Set up rate limiter: maximum of twenty requests per minute
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20,
+});
+// Apply rate limiter to all requests
+app.use(limiter);
 
 app.use(
     cors({
@@ -28,8 +49,9 @@ app.use('/api/message', messageRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
+// const NODE_ENV= process.env.NODE_ENV  
+var PORT = process.env.PORT || 5000
 
-const PORT = process.env.PORT || 5000
 const server = app.listen(PORT, () => {
     console.log(`Server is running successfully on Port ${PORT}...`)
 })
