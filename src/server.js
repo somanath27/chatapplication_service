@@ -1,36 +1,35 @@
 const express = require('express')
-const compression = require("compression");
-const helmet = require("helmet");
+const mongoose = require('mongoose')
+const compression = require('compression')
+const helmet = require('helmet')
 const dotenv = require('dotenv')
 const cors = require('cors')
-const connectDB = require('./database/db')
 const userRoutes = require('./routes/userRoutes')
 const chatRoutes = require('./routes/chatRoutes')
 const messageRoutes = require('./routes/messageRoutes')
 const { errorHandler, notFound } = require('./middleware/errorMiddleware')
 dotenv.config()
-connectDB()
 const app = express()
-app.use(compression()); // Compress all routes
+app.use(compression()) // Compress all routes
 
 // Add helmet to the middleware chain.
 // Set CSP headers to allow our Bootstrap and Jquery to be served
 app.use(
     helmet.contentSecurityPolicy({
-      directives: {
-        "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
-      },
-    }),
-  );
+        directives: {
+            'script-src': ["'self'", 'code.jquery.com', 'cdn.jsdelivr.net'],
+        },
+    })
+)
 
 // Set up rate limiter: maximum of twenty requests per minute
-const RateLimit = require("express-rate-limit");
+const RateLimit = require('express-rate-limit')
 const limiter = RateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 20,
-});
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 20,
+})
 // Apply rate limiter to all requests
-app.use(limiter);
+app.use(limiter)
 
 app.use(
     cors({
@@ -40,22 +39,32 @@ app.use(
 )
 app.use(express.json())
 
-app.get("/", (req, res) => {
-  res.send("API Running!");
-});
+app.get('/', (req, res) => {
+    res.send('API Running!')
+})
 app.use('/api/user', userRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/message', messageRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
-// const NODE_ENV= process.env.NODE_ENV  
+// const NODE_ENV= process.env.NODE_ENV
 var PORT = process.env.PORT || 5000
 
 const server = app.listen(PORT, () => {
     console.log(`Server is running successfully on Port ${PORT}...`)
 })
 
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGO_URI)
+        console.log(`MongoDB connected: ${conn.connection.host}`)
+    } catch (err) {
+        console.log(`Error: ${err.message}`)
+        // process.exit()
+    }
+}
+connectDB()
 const io = require('socket.io')(server, {
     pingTimeout: 60000,
     cors: {
