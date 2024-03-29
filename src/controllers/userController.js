@@ -50,6 +50,7 @@ module.exports.authUser = asyncHandler(async (req, res) => {
     }
 
     const { email, password } = req.body
+    console.log(email, password)
     const user = await User.findOne({ email: email })
     if (!user) {
         const error = new Error('User does not exist')
