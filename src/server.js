@@ -33,7 +33,7 @@ app.use(limiter);
 
 app.use(
     cors({
-        origin: "http://localhost:3000", // Replace with the origin of your client
+        origin: "https://chatapplication-frontend.onrender.com", // Replace with the origin of your client
         credentials: true, // Enable credentials (cookies, Authorization headers, etc.)
     })
 );
@@ -67,7 +67,7 @@ connectDB();
 const io = require("socket.io")(server, {
     pingTimeout: 60000,
     cors: {
-        origin: "http://localhost:3000",
+        origin: "https://chatapplication-frontend.onrender.com",
     },
 });
 
