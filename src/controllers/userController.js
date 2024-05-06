@@ -43,41 +43,30 @@ module.exports.registerUser = asyncHandler(async (req, res) => {
 module.exports.authUser = asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error("validation Failed");
-        error.statusCode = 422;
-        error.data = errors.array();
-        throw error;
+        return res.status(422).json({ message: "Validation Failed", errors: errors.array() });
     }
 
     const { email, password } = req.body;
     console.log(email, password);
     const user = await User.findOne({ email: email });
     if (!user) {
-        const error = new Error("User does not exist");
-        error.statusCode = 401;
-        throw error;
-    }
-    const isEqual = await bcryptjs.compare(password, user.password);
-    if (!isEqual) {
-        const error = new Error("Incorrect password");
-        error.statusCode = 401;
-        throw error;
+        return res.status(401).json({ message: "User does not exist" });
     }
 
-    if (user) {
-        res.status(200).json({
-            message: "User logged in successfully",
-            token: generateToken(user._id),
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            isAdmin: user.isAdmin,
-            pic: user.pic,
-        });
-    } else {
-        res.status(400);
-        throw new Error("Failed to Login");
+    const isEqual = await bcryptjs.compare(password, user.password);
+    if (!isEqual) {
+        return res.status(401).json({ message: "Incorrect password" });
     }
+
+    res.status(200).json({
+        message: "User logged in successfully",
+        token: generateToken(user._id),
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        pic: user.pic,
+    });
 });
 
 // api/user?search=somanath
